@@ -1,0 +1,23 @@
+{
+  "port": 8089,
+  "providers": [
+    {
+      "name": "provider-a",
+      "base_url": "https://api.provider-a.com",
+      "api_key": "sk-xxx",
+      "models": ["gpt-4o", "gpt-4o-mini"],
+      "extra_headers": {},
+      "auth_token_file": "/var/run/llm-proxy/provider-a-token"
+    },
+    {
+      "name": "provider-b",
+      "base_url": "https://api.provider-b.com",
+      "base_path": "/v1",
+      "api_key": "sk-yyy",
+      "models": ["claude-sonnet-4"],
+      "extra_headers": {"X-Custom-Header": "value"},
+      "auth_token_file": null
+    }
+  ],
+  "default_provider": "provider-a"
+}

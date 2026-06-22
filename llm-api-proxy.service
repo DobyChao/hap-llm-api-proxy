@@ -1,0 +1,23 @@
+[Unit]
+Description=LLM API Lightweight Proxy
+After=network.target
+
+[Service]
+Type=simple
+User=llm-proxy
+Group=llm-proxy
+WorkingDirectory=/opt/llm-api-proxy
+EnvironmentFile=/etc/llm-api-proxy/env
+ExecStart=/opt/llm-api-proxy/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8089}
+Restart=on-failure
+RestartSec=2
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/run/llm-proxy /etc/llm-api-proxy
+
+[Install]
+WantedBy=multi-user.target
