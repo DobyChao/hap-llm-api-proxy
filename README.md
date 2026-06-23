@@ -28,6 +28,14 @@ export LLM_PROXY_CONFIG=./config.example.json
 uvicorn app.main:app --port 8089
 ```
 
+By default the proxy respects system HTTP/HTTPS proxy environment variables. To
+disable system proxy use (e.g. when upstream is reachable directly), use the
+`--no-proxy` flag via the module entry point:
+
+```bash
+python -m app --no-proxy --port 8089
+```
+
 Then:
 
 ```bash

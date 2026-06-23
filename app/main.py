@@ -23,9 +23,10 @@ def _config_path() -> str:
 
 
 class AppState:
-    def __init__(self) -> None:
+    def __init__(self, no_proxy: bool = False) -> None:
         self.config_store = ConfigStore(_config_path())
         self.auth_store = AuthTokenStore()
+        self.no_proxy = no_proxy
         # Use a single shared client for connection pooling.
         self.client: httpx.AsyncClient | None = None
 
@@ -35,7 +36,11 @@ class AppState:
         if cfg is None:
             # Not fatal -- it might appear later via hot reload.
             pass
-        self.client = httpx.AsyncClient(timeout=httpx.Timeout(300.0, connect=10.0))
+        client_kwargs: dict[str, Any] = {"timeout": httpx.Timeout(300.0, connect=10.0)}
+        if self.no_proxy:
+            client_kwargs["proxy"] = None
+            client_kwargs["trust_env"] = False
+        self.client = httpx.AsyncClient(**client_kwargs)
 
     async def stop(self) -> None:
         if self.client is not None:
@@ -45,7 +50,7 @@ class AppState:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    state = AppState()
+    state = AppState(no_proxy=getattr(app.state, "no_proxy", False))
     app.state.proxy = state
     await state.start()
     try:
@@ -54,8 +59,9 @@ async def lifespan(app: FastAPI):
         await state.stop()
 
 
-def create_app() -> FastAPI:
+def create_app(no_proxy: bool = False) -> FastAPI:
     app = FastAPI(title="llm-api-proxy", lifespan=lifespan)
+    app.state.no_proxy = no_proxy
 
     @app.get("/healthz")
     async def healthz() -> dict[str, str]:
