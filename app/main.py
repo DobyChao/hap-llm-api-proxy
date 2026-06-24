@@ -15,7 +15,8 @@ from .proxy import proxy_chat_completions, proxy_models
 
 
 CONFIG_PATH_ENV = "LLM_PROXY_CONFIG"
-DEFAULT_CONFIG_PATH = "/etc/llm-api-proxy/config.json"
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_CONFIG_PATH = os.path.join(_PROJECT_ROOT, "config.json")
 
 
 def _config_path() -> str:
